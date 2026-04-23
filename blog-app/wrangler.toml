@@ -1,7 +1,16 @@
 name = "blogapp"
-compatibility_date = "2024-04-03"
-compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2024-04-01"
 pages_build_output_dir = ".vercel/output/static"
 
+[site]
+bucket = ".vercel/output/static"
+
 [vars]
-# GEMINI_API_KEY는 대시보드에서 설정하므로 여기서는 비워둡니다.
+# Supabase & Gemini keys are already inlined or in dashboard
+
+[[routes]]
+pattern = "blogapp.reqbox12.workers.dev/*"
+script = "_worker.js"
+
+[observability]
+enabled = true
