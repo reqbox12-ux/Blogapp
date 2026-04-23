@@ -2,11 +2,15 @@ name = "blogapp"
 compatibility_date = "2024-04-01"
 pages_build_output_dir = ".vercel/output/static"
 
-[site]
-bucket = ".vercel/output/static"
+# 빌드된 Next.js 워커 스크립트 위치를 지정합니다.
+main = ".vercel/output/static/_worker.js"
+
+# 정적 파일(이미지, CSS 등) 위치를 지정합니다.
+[assets]
+directory = ".vercel/output/static"
 
 [vars]
-# Supabase & Gemini keys are already inlined or in dashboard
+# 환경 변수는 대시보드 설정을 따릅니다.
 
 [[routes]]
 pattern = "blogapp.reqbox12.workers.dev/*"
