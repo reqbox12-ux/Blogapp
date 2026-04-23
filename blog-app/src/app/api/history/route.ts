@@ -1,31 +1,24 @@
 import fs from "fs";
 export const runtime = "edge";
-import path from "path";
 import { NextResponse } from "next/server";
-
-const OUTPUT_DIR = path.join(process.cwd(), "..", "output");
+import { supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    if (!fs.existsSync(OUTPUT_DIR)) {
-      return NextResponse.json({ history: [] });
-    }
+    const { data, error } = await supabase
+      .from('posts')
+      .select('id, title, tags, meta_desc, created_at')
+      .order('created_at', { ascending: false });
 
-    const folders = fs.readdirSync(OUTPUT_DIR);
-    const history = folders
-      .map(folder => {
-        const metaPath = path.join(OUTPUT_DIR, folder, "meta.json");
-        if (fs.existsSync(metaPath)) {
-          try {
-            return JSON.parse(fs.readFileSync(metaPath, "utf-8"));
-          } catch (e) {
-            return null;
-          }
-        }
-        return null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.id.localeCompare(a.id)); // 최신순
+    if (error) throw error;
+
+    const history = data.map(post => ({
+      id: post.id,
+      title: post.title,
+      keywords: post.tags ? post.tags.split("|").map((t: string) => t.trim()) : [],
+      metaDesc: post.meta_desc,
+      generatedAt: post.created_at
+    }));
 
     return NextResponse.json({ history });
   } catch (error: any) {

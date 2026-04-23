@@ -1,28 +1,32 @@
 import fs from "fs";
 export const runtime = "edge";
-import path from "path";
 import { NextResponse } from "next/server";
-import { marked } from "marked";
-
-const OUTPUT_DIR = path.join(process.cwd(), "..", "output");
+import { supabase } from "@/lib/supabase";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const folderPath = path.join(OUTPUT_DIR, id);
-
-  if (!fs.existsSync(folderPath)) {
-    return NextResponse.json({ error: "폴더를 찾을 수 없습니다." }, { status: 404 });
-  }
 
   try {
-    const meta = JSON.parse(fs.readFileSync(path.join(folderPath, "meta.json"), "utf-8"));
-    const htmlPath = path.join(folderPath, "upload_body.html");
-    const html = fs.existsSync(htmlPath) ? fs.readFileSync(htmlPath, "utf-8") : "";
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    return NextResponse.json({ ...meta, fullHtml: html });
+    if (error) throw error;
+    if (!data) return NextResponse.json({ error: "글을 찾을 수 없습니다." }, { status: 404 });
+
+    return NextResponse.json({ 
+      id: data.id,
+      title: data.title,
+      keywords: data.tags ? data.tags.split("|").map((t: string) => t.trim()) : [],
+      metaDesc: data.meta_desc,
+      fullHtml: data.html,
+      generatedAt: data.created_at
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
