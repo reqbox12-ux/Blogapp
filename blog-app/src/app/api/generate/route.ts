@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+export const runtime = "edge";
 import { marked } from "marked";
 import { NextResponse } from "next/server";
 

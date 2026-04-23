@@ -1,4 +1,5 @@
 import fs from "fs";
+export const runtime = "edge";
 import path from "path";
 import { NextResponse } from "next/server";
 import { marked } from "marked";
